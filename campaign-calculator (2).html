@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ウエル活×PayPayクーポン</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root {
+  --bg: #cadbe5;
+  --surface: #eef4f8;
+  --surface2: #dde9f0;
+  --border: #b0c8d8;
+  --border2: #8ab0c4;
+  --text: #0f2a3a;
+  --text-muted: #4a7089;
+  --text-hint: #7aaabb;
+  --accent: #1a6a9a;
+  --accent-light: #ddeef8;
+  --accent-border: #90c0dc;
+  --green: #0f6a4a;
+  --green-light: #d8f0e8;
+  --green-border: #80c8aa;
+  --blue: #0f3a6a;
+  --blue-light: #d0e4f4;
+  --shadow: 0 2px 12px rgba(15,42,58,0.1);
+  --shadow-lg: 0 8px 32px rgba(15,42,58,0.15);
+}
+
+body {
+  background: var(--bg);
+  min-height: 100vh;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text);
+  padding: 2rem 1rem 4rem;
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+header {
+  margin-bottom: 2rem;
+  animation: fadeUp 0.4s ease both;
+}
+
+header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+header p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 合計金額 */
+.total-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.4s ease 0.05s both;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  flex-shrink: 0;
+}
+
+.badge.green { background: var(--green); }
+.badge.blue  { background: var(--blue); }
+.badge.gray  { background: var(--text-muted); }
+
+input[type="number"] {
+  width: 100%;
+  height: 52px;
+  background: #eef4f8;
+  border: 2.5px solid #0f2a3a;
+  border-radius: 10px;
+  padding: 0 1rem;
+  font-size: 16px;
+  font-family: 'Noto Sans JP', monospace;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type="number"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(212,84,26,0.1);
+}
+input[type="number"]::placeholder {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+/* 商品リスト内の数値入力は小さめ維持 */
+.product-row input[type="number"] {
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  background: var(--surface2);
+}
+.product-row input[type="number"]:focus {
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+/* キャンペーンリスト */
+.campaigns-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  animation: fadeUp 0.4s ease 0.1s both;
+}
+
+.campaigns-header span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.08s;
+}
+.btn-add:hover { background: #bf4a15; }
+.btn-add:active { transform: scale(0.97); }
+
+.campaign-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.campaign-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease both;
+  position: relative;
+}
+
+.campaign-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.campaign-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.campaign-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.campaign-name-input {
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: 0 4px;
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  color: var(--text);
+  width: 180px;
+  box-shadow: none;
+}
+.campaign-name-input:focus {
+  border-bottom-color: var(--accent);
+  box-shadow: none;
+}
+
+.btn-remove {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-hint);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  line-height: 1;
+}
+.btn-remove:hover { background: #fee; border-color: #f9b8b8; color: #c0392b; }
+
+.campaign-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 540px) {
+  .campaign-fields { grid-template-columns: 1fr 1fr; }
+  .campaign-name-input { width: 120px; }
+}
+
+.field-group label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.field-group input {
+  height: 42px;
+  font-size: 16px;
+}
+
+.field-result {
+  background: var(--green-light);
+  border: 1px solid var(--green-border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--green);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-height: 42px;
+}
+.field-result.capped {
+  background: #fde8e8;
+  border-color: #e8a0a0;
+}
+.cap-warning {
+  font-size: 11px;
+  font-weight: 500;
+  color: #a02020;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* 合計結果 */
+.result-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.4s ease 0.15s both;
+}
+
+.result-section h2 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) { .result-grid { grid-template-columns: 1fr; } }
+
+.result-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+.result-item.highlight {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+}
+
+.result-item.highlight2 {
+  background: var(--green-light);
+  border-color: var(--green-border);
+}
+
+.result-item-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.result-item.highlight .result-item-label { color: #a03010; }
+.result-item.highlight2 .result-item-label { color: var(--green); }
+
+.result-item-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.result-item.highlight .result-item-value { color: var(--accent); }
+.result-item.highlight2 .result-item-value { color: var(--green); }
+
+.r6-card {
+  grid-column: span 2;
+  border: 2px solid var(--green-border);
+}
+@media (max-width: 480px) { .r6-card { grid-column: span 1; } }
+
+.r6-card .result-item-label {
+  font-size: 16px;
+  color: var(--green);
+}
+
+.r6-value {
+  font-size: 40px !important;
+  font-weight: 700 !important;
+  margin-top: 4px;
+}
+.r6-unit {
+  font-size: 18px !important;
+}
+
+.r7-card {
+  grid-column: span 2;
+  background: var(--blue-light);
+  border: 2px solid #a8c4e8;
+}
+@media (max-width: 480px) { .r7-card { grid-column: span 1; } }
+
+.r7-card .result-item-label {
+  font-size: 16px;
+  color: var(--blue);
+}
+.r7-value {
+  font-size: 40px !important;
+  font-weight: 700 !important;
+  color: var(--blue) !important;
+  margin-top: 4px;
+}
+.r7-unit {
+  font-size: 18px !important;
+}
+
+.result-item-unit {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-hint);
+  margin-top: 3px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* インライン電卓 */
+.calc-trigger {
+  width: 100%;
+  height: 52px;
+  background: #eef4f8;
+  border: 2.5px solid #0f2a3a;
+  border-radius: 10px;
+  padding: 0 1rem;
+  font-size: 15px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.calc-trigger:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(212,84,26,0.1);
+}
+.calc-trigger.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(212,84,26,0.1);
+}
+.calc-trigger.has-value {
+  color: var(--text);
+  font-weight: 700;
+}
+.calc-trigger-icon { font-size: 14px; color: var(--text-hint); }
+
+.inline-calc {
+  display: none;
+  margin-top: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.inline-calc.open { display: block; }
+
+.calc-display {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px 8px;
+  min-height: 68px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.calc-expr {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  min-height: 16px;
+  word-break: break-all;
+  text-align: right;
+  width: 100%;
+}
+
+.calc-current {
+  font-family: 'DM Mono', monospace;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: right;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+
+.calc-btn {
+  height: 52px;
+  border: none;
+  background: var(--surface2);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.08s, transform 0.06s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.calc-btn:active { background: var(--border2); transform: scale(0.96); }
+.calc-btn.fn { color: var(--text-muted); font-size: 13px; background: var(--surface); }
+.calc-btn.fn:active { background: var(--border); }
+.calc-btn.op { color: var(--accent); font-weight: 700; background: var(--surface); }
+.calc-btn.op:active { background: var(--accent-light); }
+.calc-btn.eq { background: var(--accent); color: #fff; font-size: 20px; }
+.calc-btn.eq:active { background: #bf4a15; }
+.calc-btn.zero { grid-column: span 2; }
+
+.calc-set-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--green-light);
+  border: none;
+  border-top: 1px solid var(--green-border);
+  color: var(--green);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.calc-set-btn:hover { background: #d0edd8; }
+
+/* 商品リスト */
+.product-trigger {
+  width: 100%;
+  height: 52px;
+  background: #eef4f8;
+  border: 2.5px solid #0f2a3a;
+  border-radius: 10px;
+  padding: 0 1rem;
+  font-size: 15px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.product-trigger:hover, .product-trigger.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(212,84,26,0.1);
+}
+.product-trigger.has-value {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.product-panel {
+  display: none;
+  margin-top: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.product-panel.open { display: block; }
+
+.product-list-inner {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 56px 28px;
+  gap: 6px;
+  align-items: center;
+}
+
+.product-row input[type="text"] {
+  height: 36px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.product-row input[type="text"]:focus { border-color: var(--accent); }
+
+.product-row input[type="number"] {
+  height: 36px;
+  font-size: 13px;
+  padding: 0 6px;
+  border-radius: 8px;
+}
+
+.product-row-label {
+  font-size: 10px;
+  color: var(--text-hint);
+  text-align: center;
+}
+
+.product-header-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 56px 28px;
+  gap: 6px;
+  padding: 0 0 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn-remove-product {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-hint);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  flex-shrink: 0;
+}
+.btn-remove-product:hover { background: #fee; border-color: #f9b8b8; color: #c0392b; }
+
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.btn-add-product {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.btn-add-product:hover { background: var(--surface); color: var(--text); }
+
+.product-total {
+  font-family: 'DM Mono', monospace;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--green);
+}
+
+.product-total-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+
+/* reset */
+.btn-reset {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.btn-reset:hover { background: var(--surface2); color: var(--text); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(10px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🎯 ウエル活×PayPayクーポン</h1>
+    <p>66.5％でWAONPOINT何pt使用するか計算できます</p>
+  </header>
+
+  <!-- ① 合計金額 -->
+  <div class="total-section">
+    <div class="field-label">
+      <span class="badge">①</span>
+      購入合計金額（レジで表示される金額）
+    </div>
+    <button class="calc-trigger" id="calcTrigger" onclick="toggleCalc()">
+      <span id="calcTriggerVal">タップで入力 🧮</span>
+    </button>
+    <input type="hidden" id="totalAmount" value="">
+
+    <div class="inline-calc" id="inlineCalc">
+      <div class="calc-display">
+        <div class="calc-expr" id="calcExpr"></div>
+        <div class="calc-current" id="calcCurrent">0</div>
+      </div>
+      <div class="calc-grid">
+        <button class="calc-btn fn" onclick="calcAC()">AC</button>
+        <button class="calc-btn fn" onclick="calcDel()">⌫</button>
+        <button class="calc-btn fn" onclick="calcPercent()">%</button>
+        <button class="calc-btn op" onclick="calcOp('÷')">÷</button>
+        <button class="calc-btn" onclick="calcNum('7')">7</button>
+        <button class="calc-btn" onclick="calcNum('8')">8</button>
+        <button class="calc-btn" onclick="calcNum('9')">9</button>
+        <button class="calc-btn op" onclick="calcOp('×')">×</button>
+        <button class="calc-btn" onclick="calcNum('4')">4</button>
+        <button class="calc-btn" onclick="calcNum('5')">5</button>
+        <button class="calc-btn" onclick="calcNum('6')">6</button>
+        <button class="calc-btn op" onclick="calcOp('−')">−</button>
+        <button class="calc-btn" onclick="calcNum('1')">1</button>
+        <button class="calc-btn" onclick="calcNum('2')">2</button>
+        <button class="calc-btn" onclick="calcNum('3')">3</button>
+        <button class="calc-btn op" onclick="calcOp('+')">+</button>
+        <button class="calc-btn zero" onclick="calcNum('0')">0</button>
+        <button class="calc-btn" onclick="calcDot()">.</button>
+        <button class="calc-btn eq" onclick="calcEq()">=</button>
+      </div>
+      <button class="calc-set-btn" onclick="calcApply()">✓ この金額を合計金額にセット</button>
+    </div>
+  </div>
+
+  <!-- キャンペーン -->
+  <div class="campaigns-header">
+    <span id="campaignCount">キャンペーン 0 件</span>
+    <button class="btn-add" onclick="addCampaign()">＋ キャンペーンを追加</button>
+  </div>
+
+  <div class="campaign-list" id="campaignList"></div>
+
+  <!-- 結果 -->
+  <div class="result-section">
+    <h2>📊 計算結果（全キャンペーン合算）</h2>
+    <div class="result-grid">
+      <div class="result-item highlight">
+        <div class="result-item-label"><span class="badge" style="width:16px;height:16px;font-size:10px;background:var(--accent)">③</span>合計還元ポイント</div>
+        <div class="result-item-value" id="r3">—<span class="result-item-unit">pt</span></div>
+        <div class="hint">全キャンペーン ③ の合計</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label"><span class="badge gray" style="width:16px;height:16px;font-size:10px;">④</span>③ ÷ 0.665（PayPay払いする金額）</div>
+        <div class="result-item-value" id="r4">—</div>
+        <div class="hint">合計③ ÷ 0.665</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label"><span class="badge gray" style="width:16px;height:16px;font-size:10px;">⑤</span>① − ④（PayPay払い後の金額）</div>
+        <div class="result-item-value" id="r5">—</div>
+        <div class="hint">合計金額 − ④</div>
+      </div>
+      <div class="result-item highlight2 r6-card">
+        <div class="result-item-label"><span class="badge green" style="width:18px;height:18px;font-size:11px;">⑥</span>⑤ ÷ 1.5（利用するWAONPOINT数）</div>
+        <div class="result-item-value r6-value" id="r6">—<span class="result-item-unit r6-unit">pt</span></div>
+        <div class="hint">⑤ ÷ 1.5</div>
+      </div>
+      <div class="result-item r7-card">
+        <div class="result-item-label"><span class="badge blue" style="width:18px;height:18px;font-size:11px;">⑦</span>いくらお得になったか</div>
+        <div class="result-item-value r7-value" id="r7">—<span class="result-item-unit r7-unit">%</span></div>
+        <div class="hint">1 − （⑥＋④−③）÷②</div>
+      </div>
+    </div>
+    <button class="btn-reset" onclick="resetAll()">🔄 すべてリセット</button>
+  </div>
+</div>
+
+<script>
+/* ===== 共通電卓エンジン（インスタンスごとに状態を持つ） ===== */
+function createCalcState() {
+  return { current: '0', prev: null, op: null, fresh: false, justCalc: false };
+}
+
+function cFmtNum(n) {
+  const s = String(n);
+  return s.length > 10 ? parseFloat(n.toPrecision(8)).toString() : s;
+}
+
+function cDoCalc(a, b, op) {
+  switch(op) {
+    case '+': return a + b;
+    case '−': return a - b;
+    case '×': return a * b;
+    case '÷': return b === 0 ? null : a / b;
+  }
+}
+
+function cUpdateDisplay(state, exprId, curId) {
+  document.getElementById(curId).textContent = state.current;
+  document.getElementById(exprId).textContent =
+    (state.prev !== null && state.op) ? cFmtNum(state.prev) + ' ' + state.op : '';
+}
+
+function cNum(state, v, exprId, curId) {
+  if (state.justCalc) { state.current = v; state.justCalc = false; state.fresh = false; }
+  else if (state.fresh || state.current === '0') { state.current = v; state.fresh = false; }
+  else if (state.current.replace('-','').replace('.','').length < 12) state.current += v;
+  cUpdateDisplay(state, exprId, curId);
+}
+
+function cDot(state, exprId, curId) {
+  if (state.justCalc) { state.current = '0.'; state.justCalc = false; state.fresh = false; }
+  else if (!state.current.includes('.')) state.current += '.';
+  cUpdateDisplay(state, exprId, curId);
+}
+
+function cOp(state, op, exprId, curId) {
+  const n = parseFloat(state.current);
+  if (state.prev !== null && state.op && !state.fresh && !state.justCalc) {
+    const r = cDoCalc(state.prev, n, state.op);
+    if (r === null) { state.current = 'エラー'; state.prev = null; state.op = null; cUpdateDisplay(state, exprId, curId); return; }
+    state.prev = parseFloat(cFmtNum(r));
+    state.current = cFmtNum(state.prev);
+  } else {
+    state.prev = n;
+  }
+  state.op = op; state.fresh = true; state.justCalc = false;
+  cUpdateDisplay(state, exprId, curId);
+}
+
+function cEq(state, exprId, curId) {
+  if (state.prev !== null && state.op) {
+    const n = parseFloat(state.current);
+    const r = cDoCalc(state.prev, n, state.op);
+    if (r === null) { state.current = 'エラー'; state.prev = null; state.op = null; cUpdateDisplay(state, exprId, curId); return; }
+    document.getElementById(exprId).textContent = cFmtNum(state.prev) + ' ' + state.op + ' ' + cFmtNum(n) + ' =';
+    state.current = cFmtNum(parseFloat(r.toPrecision(10)));
+    state.prev = null; state.op = null; state.justCalc = true; state.fresh = false;
+    document.getElementById(curId).textContent = state.current;
+  }
+}
+
+function cAC(state, exprId, curId) {
+  state.current = '0'; state.prev = null; state.op = null; state.fresh = false; state.justCalc = false;
+  cUpdateDisplay(state, exprId, curId);
+}
+
+function cDel(state, exprId, curId) {
+  if (state.justCalc || state.current === 'エラー') { cAC(state, exprId, curId); return; }
+  state.current = state.current.length > 1 ? state.current.slice(0, -1) : '0';
+  cUpdateDisplay(state, exprId, curId);
+}
+
+function cPercent(state, exprId, curId) {
+  if (state.current !== 'エラー') {
+    state.current = cFmtNum(parseFloat(state.current) / 100);
+    cUpdateDisplay(state, exprId, curId);
+  }
+}
+
+/* ===== ① 購入合計金額の電卓 ===== */
+const mainCalcState = createCalcState();
+
+function toggleCalc() {
+  const el = document.getElementById('inlineCalc');
+  const btn = document.getElementById('calcTrigger');
+  const open = el.classList.toggle('open');
+  btn.classList.toggle('active', open);
+}
+
+function calcNum(v)    { cNum(mainCalcState, v, 'calcExpr', 'calcCurrent'); }
+function calcDot()     { cDot(mainCalcState, 'calcExpr', 'calcCurrent'); }
+function calcOp(op)    { cOp(mainCalcState, op, 'calcExpr', 'calcCurrent'); }
+function calcEq()      { cEq(mainCalcState, 'calcExpr', 'calcCurrent'); }
+function calcAC()      { cAC(mainCalcState, 'calcExpr', 'calcCurrent'); }
+function calcDel()     { cDel(mainCalcState, 'calcExpr', 'calcCurrent'); }
+function calcPercent() { cPercent(mainCalcState, 'calcExpr', 'calcCurrent'); }
+
+function calcApply() {
+  const val = parseFloat(mainCalcState.current);
+  if (isNaN(val) || mainCalcState.current === 'エラー') return;
+  document.getElementById('totalAmount').value = val;
+  const btn = document.getElementById('calcTrigger');
+  document.getElementById('calcTriggerVal').textContent = Math.round(val).toLocaleString() + ' 円';
+  btn.classList.add('has-value');
+  document.getElementById('inlineCalc').classList.remove('open');
+  btn.classList.remove('active');
+  calculate();
+}
+
+/* ===== ② キャンペーンごとの電卓 ===== */
+// キャンペーンIDをキーに電卓状態を保持
+const campCalcStates = {};
+
+function toggleCampCalc(id) {
+  const el = document.getElementById('campCalc-' + id);
+  const btn = document.getElementById('campCalcTrigger-' + id);
+  const open = el.classList.toggle('open');
+  btn.classList.toggle('active', open);
+  // 初回open時に状態がなければ作成
+  if (!campCalcStates[id]) campCalcStates[id] = createCalcState();
+}
+
+function ccNum(id, v)    { cNum(campCalcStates[id], v, 'ccExpr-'+id, 'ccCur-'+id); }
+function ccDot(id)       { cDot(campCalcStates[id], 'ccExpr-'+id, 'ccCur-'+id); }
+function ccOp(id, op)    { cOp(campCalcStates[id], op, 'ccExpr-'+id, 'ccCur-'+id); }
+function ccEq(id)        { cEq(campCalcStates[id], 'ccExpr-'+id, 'ccCur-'+id); }
+function ccAC(id)        { cAC(campCalcStates[id], 'ccExpr-'+id, 'ccCur-'+id); }
+function ccDel(id)       { cDel(campCalcStates[id], 'ccExpr-'+id, 'ccCur-'+id); }
+function ccPercent(id)   { cPercent(campCalcStates[id], 'ccExpr-'+id, 'ccCur-'+id); }
+
+function ccApply(id) {
+  const state = campCalcStates[id];
+  if (!state) return;
+  const val = parseFloat(state.current);
+  if (isNaN(val) || state.current === 'エラー') return;
+  // キャンペーンデータに反映
+  const c = campaigns.find(c => c.id === id);
+  if (c) { c.amount = val; }
+  document.getElementById('campCalcTriggerVal-' + id).textContent = Math.round(val).toLocaleString() + ' 円';
+  document.getElementById('campCalc-' + id).classList.remove('open');
+  document.getElementById('campCalcTrigger-' + id).classList.remove('active');
+  calculate();
+}
+
+/* ===== ② 商品リスト管理 ===== */
+// campProducts[campaignId] = [{id, name, price, qty}, ...]
+const campProducts = {};
+let productIdCounter = 0;
+
+function toggleProductPanel(cid) {
+  const panel = document.getElementById('productPanel-' + cid);
+  const btn   = document.getElementById('productTrigger-' + cid);
+  const open  = panel.classList.toggle('open');
+  btn.classList.toggle('active', open);
+}
+
+function addProduct(cid) {
+  productIdCounter++;
+  campProducts[cid].push({ id: productIdCounter, name: '', price: '', qty: 1 });
+  renderProductList(cid);
+  updateCampAmount(cid);
+}
+
+function removeProduct(cid, pid) {
+  campProducts[cid] = campProducts[cid].filter(p => p.id !== pid);
+  renderProductList(cid);
+  updateCampAmount(cid);
+}
+
+function updateProduct(cid, pid, field, value) {
+  const p = campProducts[cid].find(p => p.id === pid);
+  if (p) {
+    p[field] = field === 'qty' ? Math.max(1, parseInt(value) || 1) : value;
+    // 金額・数量の変更時は合計だけ更新（再描画しない）
+    if (field === 'price' || field === 'qty') {
+      updateCampAmountOnly(cid);
+    }
+    // 商品名は再描画不要
+  }
+}
+
+function updateCampAmountOnly(cid) {
+  const total = calcProductTotal(cid);
+  const c = campaigns.find(c => c.id === cid);
+  if (c) c.amount = total > 0 ? total : '';
+  const triggerVal = document.getElementById('productTriggerVal-' + cid);
+  const triggerBtn = document.getElementById('productTrigger-' + cid);
+  if (triggerVal) {
+    if (total > 0) {
+      triggerVal.textContent = Math.round(total).toLocaleString() + ' 円';
+      if (triggerBtn) triggerBtn.classList.add('has-value');
+    } else {
+      triggerVal.textContent = 'タップで入力 📋';
+      if (triggerBtn) triggerBtn.classList.remove('has-value');
+    }
+  }
+  const totalEl = document.getElementById('productTotal-' + cid);
+  if (totalEl) totalEl.textContent = total > 0 ? Math.round(total).toLocaleString() + ' 円' : '—';
+  calculate();
+}
+
+function calcProductTotal(cid) {
+  if (!campProducts[cid]) return 0;
+  return campProducts[cid].reduce((sum, p) => {
+    const price = parseFloat(p.price) || 0;
+    const qty   = parseInt(p.qty) || 1;
+    return sum + price * qty;
+  }, 0);
+}
+
+function updateCampAmount(cid) {
+  const total = calcProductTotal(cid);
+  const c = campaigns.find(c => c.id === cid);
+  if (c) c.amount = total > 0 ? total : '';
+  const triggerVal = document.getElementById('productTriggerVal-' + cid);
+  const triggerBtn = document.getElementById('productTrigger-' + cid);
+  if (triggerVal) {
+    if (total > 0) {
+      triggerVal.textContent = Math.round(total).toLocaleString() + ' 円';
+      if (triggerBtn) triggerBtn.classList.add('has-value');
+    } else {
+      triggerVal.textContent = 'タップで入力 📋';
+      if (triggerBtn) triggerBtn.classList.remove('has-value');
+    }
+  }
+  const totalEl = document.getElementById('productTotal-' + cid);
+  if (totalEl) totalEl.textContent = total > 0 ? Math.round(total).toLocaleString() + ' 円' : '—';
+  calculate();
+}
+
+function renderProductList(cid) {
+  const container = document.getElementById('productListInner-' + cid);
+  if (!container) return;
+  const products = campProducts[cid] || [];
+  container.innerHTML = products.map(p => `
+    <div class="product-row">
+      <input type="text" placeholder="商品名（任意）" value="${p.name}"
+        onblur="updateProduct(${cid},${p.id},'name',this.value)">
+      <input type="number" placeholder="金額" value="${p.price}" min="0"
+        oninput="updateProduct(${cid},${p.id},'price',this.value)">
+      <input type="number" value="${p.qty}" min="1"
+        oninput="updateProduct(${cid},${p.id},'qty',this.value)">
+      <button class="btn-remove-product" onclick="removeProduct(${cid},${p.id})">×</button>
+    </div>
+  `).join('');
+}
+
+function productPanelHTML(cid, triggerLabel) {
+  const hasVal = triggerLabel !== 'タップで入力 📋';
+  return `
+  <button class="product-trigger${hasVal ? ' has-value' : ''}" id="productTrigger-${cid}" onclick="toggleProductPanel(${cid})">
+    <span id="productTriggerVal-${cid}">${triggerLabel}</span>
+  </button>
+  <div class="product-panel" id="productPanel-${cid}">
+    <div class="product-list-inner">
+      <div class="product-header-row">
+        <span class="product-row-label" style="text-align:left;">商品名（任意）</span>
+        <span class="product-row-label">金額（円）←タップで変更</span>
+        <span class="product-row-label">数量</span>
+        <span></span>
+      </div>
+      <div id="productListInner-${cid}"></div>
+    </div>
+    <div class="product-footer">
+      <button class="btn-add-product" onclick="addProduct(${cid})">＋ 商品を追加</button>
+      <div>
+        <span class="product-total-label">合計</span>
+        <span class="product-total" id="productTotal-${cid}">—</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ===== キャンペーン管理 ===== */
+let campaigns = [];
+let idCounter = 0;
+
+function addCampaign() {
+  idCounter++;
+  const cid = idCounter;
+  campaigns.push({ id: cid, name: 'キャンペーン' + cid, rate: '', limit: '', amount: '' });
+  campProducts[cid] = [];
+  // 商品を1件デフォルト追加
+  productIdCounter++;
+  campProducts[cid].push({ id: productIdCounter, name: '', price: '', qty: 1 });
+  renderCampaigns();
+  calculate();
+}
+
+function removeCampaign(id) {
+  campaigns = campaigns.filter(c => c.id !== id);
+  delete campProducts[id];
+  renderCampaigns();
+  calculate();
+}
+
+function updateCampaign(id, field, value) {
+  const c = campaigns.find(c => c.id === id);
+  if (c) { c[field] = value; calculate(); }
+}
+
+function renderCampaigns() {
+  const list = document.getElementById('campaignList');
+  document.getElementById('campaignCount').textContent = 'キャンペーン ' + campaigns.length + ' 件';
+
+  list.innerHTML = campaigns.map((c, i) => {
+    const pts = calcCampaignPoints(c);
+    const ptsStr = pts !== null ? Math.floor(pts).toLocaleString() + ' pt' : '—';
+    const total = calcProductTotal(c.id);
+    const triggerLabel = total > 0 ? Math.round(total).toLocaleString() + ' 円' : 'タップで入力 📋';
+    return `
+    <div class="campaign-card" id="card-${c.id}">
+      <div class="campaign-card-header">
+        <div class="campaign-name-wrap">
+          <span class="campaign-num">No.${i+1}</span>
+          <input class="campaign-name-input" type="text" value="${c.name}"
+            oninput="updateName(${c.id}, this.value)" placeholder="キャンペーン名">
+          <span style="font-size:11px;color:var(--text-hint);white-space:nowrap;">←タップで自由入力</span>
+        </div>
+        <button class="btn-remove" onclick="removeCampaign(${c.id})" title="削除">×</button>
+      </div>
+      <div class="campaign-fields">
+        <div class="field-group" style="grid-column: span 3;">
+          <label><span class="badge" style="width:16px;height:16px;font-size:9px;">②</span>対象商品の購入金額</label>
+          ${productPanelHTML(c.id, triggerLabel)}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+        <div class="field-group">
+          <label>還元率 (%)</label>
+          <input type="number" value="${c.rate}" placeholder="タップで入力　例：10" min="0" max="100" step="0.1"
+            oninput="updateCampaign(${c.id},'rate',this.value)">
+        </div>
+        <div class="field-group">
+          <label>付与上限 (pt)</label>
+          <input type="number" value="${c.limit}" placeholder="タップで入力　例：1000" min="0"
+            oninput="updateCampaign(${c.id},'limit',this.value)">
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="field-label" style="margin-bottom:6px;">
+          <span class="badge green" style="width:16px;height:16px;font-size:9px;">③</span>
+          PayPayでの還元ポイント
+        </div>
+        <div class="field-result" id="pts-${c.id}">—</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // 各キャンペーンの商品リストを描画
+  campaigns.forEach(c => {
+    renderProductList(c.id);
+    updateCampAmount(c.id);
+  });
+}
+
+function updateName(id, value) {
+  const c = campaigns.find(c => c.id === id);
+  if (c) c.name = value;
+}
+
+function calcCampaignPoints(c) {
+  const amount = parseFloat(c.amount);
+  const rate   = parseFloat(c.rate);
+  const limit  = parseFloat(c.limit);
+  if (isNaN(amount) || isNaN(rate)) return null;
+  const pts = amount * (rate / 100);
+  return isNaN(limit) ? pts : Math.min(pts, limit);
+}
+
+function calculate() {
+  campaigns.forEach(c => {
+    const el = document.getElementById('pts-' + c.id);
+    if (!el) return;
+    const amount = parseFloat(c.amount);
+    const rate   = parseFloat(c.rate);
+    const limit  = parseFloat(c.limit);
+    if (isNaN(amount) || isNaN(rate)) {
+      el.className = 'field-result';
+      el.innerHTML = '—';
+      return;
+    }
+    const raw = amount * (rate / 100);
+    const capped = !isNaN(limit) && raw > limit;
+    const pts = capped ? limit : raw;
+    el.className = 'field-result' + (capped ? ' capped' : '');
+    el.innerHTML = `<span>${Math.floor(pts).toLocaleString()} pt</span>` +
+      (capped ? `<span class="cap-warning">⚠ 上限に達しています</span>` : '');
+  });
+
+  const total1 = parseFloat(document.getElementById('totalAmount').value);
+  const validPts = campaigns.map(c => calcCampaignPoints(c)).filter(v => v !== null);
+  const sum3 = validPts.length > 0 ? validPts.reduce((a, b) => a + b, 0) : null;
+
+  const r3 = sum3;
+  const r4 = r3 !== null ? r3 / 0.665 : null;
+  const r5 = (!isNaN(total1) && r4 !== null) ? total1 - r4 : null;
+  const r6 = r5 !== null ? r5 / 1.5 : null;
+  // ⑦ = 1 - ((⑥ + ④ - ③) ÷ ②) × 100
+  const r7 = (r6 !== null && r4 !== null && r3 !== null && !isNaN(total1) && total1 > 0)
+    ? (1 - (r6 + r4 - r3) / total1) * 100 : null;
+
+  document.getElementById('r3').innerHTML = r3 !== null ? Math.round(r3).toLocaleString() + '<span class="result-item-unit">pt</span>' : '—';
+  document.getElementById('r4').innerHTML = r4 !== null ? Math.round(r4).toLocaleString() : '—';
+  document.getElementById('r5').innerHTML = r5 !== null ? Math.round(r5).toLocaleString() : '—';
+  document.getElementById('r6').innerHTML = r6 !== null ? Math.round(r6).toLocaleString() + '<span class="result-item-unit r6-unit">pt</span>' : '—';
+  document.getElementById('r7').innerHTML = r7 !== null ? r7.toFixed(1) + '<span class="result-item-unit r7-unit">%</span>' : '—';
+}
+
+function resetAll() {
+  if (!confirm('すべての入力をリセットしますか？')) return;
+  campaigns = [];
+  idCounter = 0;
+  Object.keys(campProducts).forEach(k => delete campProducts[k]);
+
+  // ①電卓リセット
+  document.getElementById('totalAmount').value = '';
+  document.getElementById('calcTriggerVal').textContent = 'タップで入力 🧮';
+  document.getElementById('calcTrigger').classList.remove('has-value');
+  document.getElementById('inlineCalc').classList.remove('open');
+  document.getElementById('calcTrigger').classList.remove('active');
+  cAC(mainCalcState, 'calcExpr', 'calcCurrent');
+
+  // 結果表示リセット
+  document.getElementById('r3').innerHTML = '—';
+  document.getElementById('r4').innerHTML = '—';
+  document.getElementById('r5').innerHTML = '—';
+  document.getElementById('r6').innerHTML = '—';
+  document.getElementById('r7').innerHTML = '—';
+
+  // キャンペーンを1件の初期状態に戻す
+  renderCampaigns();
+  addCampaign();
+}
+
+// 初期キャンペーンを1件追加
+addCampaign();
+</script>
+</body>
+</html>
